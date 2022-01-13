@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"go-grpc/App/controllers"
 	"go-grpc/App/db"
 	_ "google.golang.org/grpc"
 	"log"
@@ -47,7 +48,8 @@ func main() {
 
 	api := router.Group("/api/usr")
 	{
-		api.POST("/auth/register")
+		userController := new(controllers.UserController)
+		api.POST("/auth/register", userController.Register)
 	}
 
 	router.NoRoute(func(res *gin.Context) {
