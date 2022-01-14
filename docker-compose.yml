@@ -28,6 +28,22 @@ services:
     networks:
         - go_networks
 
+  go_database_mongo:
+    image: mongo
+    container_name: db_go_mongo
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - mongodb:/var/lib/mongodb/data
+      - mongoconfig:/var/lib/mongodb/data/configdb
+    networks:
+      - go_networks
+
 #  database:
 #    image: postgres
 #    restart: always
@@ -52,6 +68,8 @@ services:
 volumes:
   app:
   database_postgres:
+  mongodb:
+  mongoconfig:
 
 networks:
   go_networks:

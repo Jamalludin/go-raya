@@ -10,4 +10,5 @@ RUN apk add --no-cache ca-certificates && update-ca-certificates
 COPY --from=builder /go/src/gitlab.com/idoko/bucketeer/build/bucketeer /usr/bin/bucketeer
 EXPOSE 8080 8080
 EXPOSE 5432 5432
+EXPOSE 27017 27017
 ENTRYPOINT ["/usr/bin/bucketeer"]
