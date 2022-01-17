@@ -1,14 +1,59 @@
 version: "3.7"
 services:
-  database:
-    image: postgres
-    restart: always
-    env_file:
-      - .env
+#  app:
+#    container_name: go_api_app
+#    build: .
+#    ports:
+#      - '8081:8081'
+#    restart: on-failure
+#    volumes:
+#      - app:/var/lib/app
+#    depends_on:
+#      - go_database_pg
+#    networks:
+#      - go_networks
+
+  go_database_pg:
+    image: postgres:latest
+    container_name: db_go_pg
+    environment:
+      - POSTGRES_USER=${POSTGRES_DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB_NAME}
+      - DATABASE_HOST=${POSTGRES_DB_HOST}
     ports:
-      - "5432:5432"
+        - '5432:5432'
     volumes:
-      - data:/var/lib/postgresql/data
+        - database_postgres:/var/lib/postgresql/data
+    networks:
+        - go_networks
+
+  go_database_mongo:
+    image: mongo
+    container_name: db_go_mongo
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - mongodb:/var/lib/mongodb/data
+      - mongoconfig:/var/lib/mongodb/data/configdb
+    networks:
+      - go_networks
+
+#  database:
+#    image: postgres
+#    restart: always
+#    env_file:
+#      - .env
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - data:/var/lib/postgresql/data
+
 #  server:
 #    build:
 #      context: .
@@ -21,4 +66,11 @@ services:
 #    ports:
 #      - "8080:8080"
 volumes:
-  data:
+  app:
+  database_postgres:
+  mongodb:
+  mongoconfig:
+
+networks:
+  go_networks:
+    driver: bridge
