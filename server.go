@@ -51,6 +51,7 @@ func main() {
 		userController := new(controllers.UserController)
 		api.POST("/auth/register", userController.Register)
 		api.POST("/auth/login", userController.Login)
+		api.GET("/auth/logout", userController.Logout)
 	}
 
 	router.NoRoute(func(res *gin.Context) {

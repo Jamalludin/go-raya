@@ -30,3 +30,23 @@ func GenerateToken(username string) (string, time.Time, error) {
 
 	return tokenString, expiredTime, err
 }
+
+func DecodeToken(tokenStr string) (string, error) {
+	claims := &Claims{}
+
+	_, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return tokenKey, nil
+	})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return "", err
+		}
+	}
+
+	if claims.Username == "" {
+		return "", err
+	}
+
+	return claims.Username, nil
+}

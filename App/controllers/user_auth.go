@@ -51,7 +51,7 @@ func (h *UserController) Login(res *gin.Context) {
 		return
 	}
 
-	/*Check Username Already*/
+	/*Check User*/
 	var user postgresql.User
 	if err := db.PGDB.Where(" username = ?", req.Username).First(&user).Error; err != nil {
 		res.JSON(404, gin.H{"message": "Incorrect Username / Password"})
@@ -79,4 +79,37 @@ func (h *UserController) Login(res *gin.Context) {
 	}
 
 	res.JSON(201, gin.H{"message": "SUCCESS_LOGIN", "token": jwtToken})
+}
+
+func (h *UserController) Logout(res *gin.Context) {
+	tokenAuth := res.Request.Header.Get("token")
+
+	if tokenAuth == "" {
+		res.JSON(401, gin.H{"message": "Token Auth is required"})
+		return
+	}
+
+	username, err := utility.DecodeToken(tokenAuth)
+
+	if err != nil {
+		res.JSON(401, gin.H{"message": "Unknown token"})
+		return
+	}
+
+	isActive, _ := mongodb.SessionActive(username)
+
+	if !isActive {
+		mongodb.UpdateSession(username)
+		res.JSON(401, gin.H{"message": "Token Expired"})
+		return
+	}
+
+	err = mongodb.UpdateSession(username)
+	if err != nil {
+		res.JSON(501, gin.H{"message": "Something went wrong, please try again later!"})
+		return
+	}
+
+	res.JSON(201, gin.H{"message": "SUCCESS_LOGOUT"})
+
 }
